@@ -9,9 +9,9 @@ app.use(express.json());
 
 // Rutas de eventos
 const eventRoutes = require('./routes/eventRoutes');
-app.use('/api/events', eventRoutes);
+app.use('/api/', eventRoutes);
 
-// Servir los PDFs subidos desde el directorio "uploads"
+// TODO: Servir los PDFs subidos desde el directorio "uploads"
 app.use('/uploads', express.static('uploads'));
 
 // Sincronizar modelos con la base de datos
