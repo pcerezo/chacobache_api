@@ -1,17 +1,24 @@
 const express = require('express');
 const { Evento } = require('../models');
 const router = express.Router();
+const { Op } = require('sequelize'); // Importa operadores de Sequelize
 
 // Define tus rutas aquí
 router.get('/', (req, res) => {
   res.send('Hello World');
 });
 
-// Get eventos
-router.get('/historialEventos', async (req, res) => {
+// Get eventos pasados
+router.get('/historialEventosPasados', async (req, res) => {
   try {
     const eventos = await Evento.findAll({
-      attributes: ['id', 'lugar', 'fecha', 'descripcion', 'enlace_entradas']
+      attributes: ['id', 'lugar', 'fecha', 'descripcion', 'enlace_entradas'],
+      where: {
+        fecha: {
+          [Op.lt]: new Date() // Filtra eventos cuya fecha sea mayor que la actual
+        }
+      },
+      order: [['fecha', 'ASC']] // Ordena los eventos por fecha ascendente (opcional)
     });
 
     res.json(eventos);
@@ -20,6 +27,27 @@ router.get('/historialEventos', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener los proyectos' });
   }
 });
+
+// Get eventos futuros
+router.get('/historialEventosFuturos', async (req, res) => {
+  try {
+    const eventos = await Evento.findAll({
+      attributes: ['id', 'lugar', 'fecha', 'descripcion', 'enlace_entradas'],
+      where: {
+        fecha: {
+          [Op.gt]: new Date() // Filtra eventos cuya fecha sea mayor que la actual
+        }
+      },
+      order: [['fecha', 'ASC']] // Ordena los eventos por fecha ascendente (opcional)
+    });
+
+    res.json(eventos);
+  } catch (error) {
+    console.error('Error al obtener los eventos futuros:', error);
+    res.status(500).json({ error: 'Error al obtener los eventos futuros' });
+  }
+});
+
 
 // Ruta para obtener la lista de proyectos con información resumida
 /*
