@@ -10,7 +10,11 @@ const Multimedia = sequelize.define('Multimedia', {
   },
   id_evento: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'Eventos',
+      key: 'id'
+    }
   },
   enlace_contenido: {
     type: DataTypes.STRING,

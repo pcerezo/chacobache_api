@@ -29,11 +29,7 @@ const Evento = sequelize.define('Evento', {
   tipo: {
     type: DataTypes.ENUM('concierto', 'charla'),
     allowNull: false
-  }/*,
-  estado: {
-    type: DataTypes.ENUM('pasado', 'futuro'),
-    allowNull: false
-  }*/
+  }
 });
 
 module.exports = Evento;

@@ -1,5 +1,5 @@
 const express = require('express');
-const { Evento } = require('../models');
+const { Evento, Multimedia } = require('../models');
 const router = express.Router();
 const { Op } = require('sequelize'); // Importa operadores de Sequelize
 
@@ -8,14 +8,15 @@ router.get('/', (req, res) => {
   res.send('Hello World');
 });
 
+// ---------- EVENTOS ----------
 // Get eventos pasados
-router.get('/historialEventosPasados', async (req, res) => {
+router.get('/eventos/historialEventosPasados', async (req, res) => {
   try {
     const eventos = await Evento.findAll({
       attributes: ['id', 'lugar', 'fecha', 'descripcion', 'enlace_entradas'],
       where: {
         fecha: {
-          [Op.lt]: new Date() // Filtra eventos cuya fecha sea mayor que la actual
+          [Op.lt]: new Date() // Filtra eventos cuya fecha sea menor que la actual
         }
       },
       order: [['fecha', 'ASC']] // Ordena los eventos por fecha ascendente (opcional)
@@ -24,12 +25,36 @@ router.get('/historialEventosPasados', async (req, res) => {
     res.json(eventos);
   } catch (error) {
     console.error('Error al obtener los eventos:', error);
-    res.status(500).json({ error: 'Error al obtener los proyectos' });
+    res.status(500).json({ error: 'Error al obtener los eventos' });
+  }
+});
+
+// Get eventos pasados que tienen multimedia
+router.get('/eventos/historialEventosPasadosMultimedia', async (req, res) => {
+  try {
+    const eventos = await Evento.findAll({
+      attributes: ['id', 'lugar', 'fecha', 'descripcion'],
+      where: {
+        fecha: {
+          [Op.lt]: new Date() // Filtra eventos cuya fecha sea menor que la actual
+        }
+      },
+      include: [
+        {
+          model: Multimedia,  // Incluir Multimedia
+          required: true      // Solo eventos que tienen multimedia relacionada
+        }
+      ],
+      logging: console.log
+    });
+  } catch(error) {
+    console.error('Error al obtener los eventos:', error);
+    res.status(500).json({ error: 'Error al obtener los eventos' });
   }
 });
 
 // Get eventos futuros
-router.get('/historialEventosFuturos', async (req, res) => {
+router.get('/eventos/historialEventosFuturos', async (req, res) => {
   try {
     const eventos = await Evento.findAll({
       attributes: ['id', 'lugar', 'fecha', 'descripcion', 'enlace_entradas'],
@@ -47,6 +72,10 @@ router.get('/historialEventosFuturos', async (req, res) => {
     res.status(500).json({ error: 'Error al obtener los eventos futuros' });
   }
 });
+
+// ----------- MULTIMEDIA ----------
+// Obtener multimedia de un evento
+
 
 
 // Ruta para obtener la lista de proyectos con información resumida
