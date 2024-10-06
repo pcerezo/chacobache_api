@@ -41,12 +41,15 @@ router.get('/eventos/historialEventosPasadosMultimedia', async (req, res) => {
       },
       include: [
         {
-          model: Multimedia,  // Incluir Multimedia
-          required: true      // Solo eventos que tienen multimedia relacionada
+          model: Multimedia,
+          required: true
         }
       ],
+      order: [['fecha', 'ASC']],
       logging: console.log
     });
+
+    res.json(eventos);
   } catch(error) {
     console.error('Error al obtener los eventos:', error);
     res.status(500).json({ error: 'Error al obtener los eventos' });

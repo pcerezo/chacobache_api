@@ -1,6 +1,7 @@
 // models/multimedia.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const Evento = require('../models/evento');
 
 const Multimedia = sequelize.define('Multimedia', {
   id: {
@@ -12,7 +13,7 @@ const Multimedia = sequelize.define('Multimedia', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'Eventos',
+      model: Evento,
       key: 'id'
     }
   },
