@@ -2,6 +2,8 @@ const express = require('express');
 const { Evento, Multimedia } = require('../models');
 const router = express.Router();
 const { Op } = require('sequelize'); // Importa operadores de Sequelize
+const nodemailer = require('nodemailer');
+require('dotenv').config();
 
 // Define tus rutas aquí
 router.get('/', (req, res) => {
@@ -29,7 +31,63 @@ router.get('/eventos/historialEventosPasados', async (req, res) => {
   }
 });
 
-// Get eventos pasados que tienen multimedia
+// Get eventos futuros
+router.get('/eventos/historialEventosFuturos', async (req, res) => {
+  try {
+    const eventos = await Evento.findAll({
+      attributes: ['id', 'lugar', 'fecha', 'descripcion', 'enlace_entradas'],
+      where: {
+        fecha: {
+          [Op.gt]: new Date() // Filtra eventos cuya fecha sea mayor que la actual
+        }
+      },
+      order: [['fecha', 'ASC']] // Ordena los eventos por fecha ascendente (opcional)
+    });
+
+    res.json(eventos);
+  } catch (error) {
+    console.error('Error al obtener los eventos futuros:', error);
+    res.status(500).json({ error: 'Error al obtener los eventos futuros' });
+  }
+});
+
+// Enviar correo de solicitud de producción musical
+router.post('/eventos/solicitudProduccionMusical', async(req, res) => {
+  console.log("En el back del envío");
+  const { nombre, email, mensaje } = req.body;
+
+  // Configuración del transporte (esto puede cambiar según el servicio SMTP)
+  const transporter = nodemailer.createTransport({
+    service: 'gmail', // o cualquier otro servicio
+    auth: {
+      user: process.env.EMAIL_USER, // tu correo
+      pass: process.env.EMAIL_CODE // tu contraseña
+    }
+  });
+
+  // Detalles del correo
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: process.env.EMAIL_DESTINO,
+    subject: "Solicitud de producción musical de " + nombre,
+    text: "Tienes una solicitud de encuentro de producción musical de parte de " + nombre + " cuyo correo es " + email + ". \n\n" 
+      + "\"" + mensaje + "\""
+  };
+
+  // Envío del correo
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log('Error al enviar el correo: ' + error);
+      res.status(500).json({message: 'Error al enviar el correo', error});
+    } else {
+      console.log('Correo enviado: ' + info.response);
+      res.status(200).json({message: 'Correo enviado'});
+    }
+  });
+});
+
+// ----------- MULTIMEDIA ----------
+// Obtener multimedia de un evento
 router.get('/eventos/historialEventosPasadosMultimedia', async (req, res) => {
   try {
     const eventos = await Evento.findAll({
@@ -56,30 +114,7 @@ router.get('/eventos/historialEventosPasadosMultimedia', async (req, res) => {
   }
 });
 
-// Get eventos futuros
-router.get('/eventos/historialEventosFuturos', async (req, res) => {
-  try {
-    const eventos = await Evento.findAll({
-      attributes: ['id', 'lugar', 'fecha', 'descripcion', 'enlace_entradas'],
-      where: {
-        fecha: {
-          [Op.gt]: new Date() // Filtra eventos cuya fecha sea mayor que la actual
-        }
-      },
-      order: [['fecha', 'ASC']] // Ordena los eventos por fecha ascendente (opcional)
-    });
-
-    res.json(eventos);
-  } catch (error) {
-    console.error('Error al obtener los eventos futuros:', error);
-    res.status(500).json({ error: 'Error al obtener los eventos futuros' });
-  }
-});
-
-// ----------- MULTIMEDIA ----------
-// Obtener multimedia de un evento
-
-
+// 
 
 // Ruta para obtener la lista de proyectos con información resumida
 /*
