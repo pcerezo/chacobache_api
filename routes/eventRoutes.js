@@ -1,5 +1,5 @@
 const express = require('express');
-const { Evento, Multimedia } = require('../models');
+const { Evento, Multimedia, PreguntaRespuesta } = require('../models');
 const router = express.Router();
 const { Op } = require('sequelize'); // Importa operadores de Sequelize
 const nodemailer = require('nodemailer');
@@ -78,10 +78,10 @@ router.post('/eventos/solicitudProduccionMusical', async(req, res) => {
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
       console.log('Error al enviar el correo: ' + error);
-      res.status(500).json({message: 'Error al enviar el correo', error});
+      res.status(500).json({status: 500, message: 'Error al enviar el correo: ' + error});
     } else {
       console.log('Correo enviado: ' + info.response);
-      res.status(200).json({message: 'Correo enviado'});
+      res.status(200).json({status: 200, message: 'Correo enviado'});
     }
   });
 });
@@ -114,7 +114,21 @@ router.get('/eventos/historialEventosPasadosMultimedia', async (req, res) => {
   }
 });
 
-// 
+// -------- PREGUNTAS FRECUENTES ----------
+router.get('/contacto/preguntasFrecuentes', async (req, res) => {
+  try {
+    const preguntasFrecuentes = await PreguntaRespuesta.findAll({
+      attributes: ['asunto', 'texto_pregunta', 'texto_respuesta', 'fecha_publicacion'],
+      order: [['fecha_publicacion', 'ASC']],
+      logging: console.log
+    });
+    res.json(preguntasFrecuentes);
+  } catch(error) {
+    console.error('Error al obtener las preguntas frecuentes: ', error);
+    res.status(500).json({ error: 'Error al obtener las preguntas frecuentes' });
+  }
+});
+
 
 // Ruta para obtener la lista de proyectos con información resumida
 /*
