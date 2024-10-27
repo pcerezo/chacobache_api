@@ -10,6 +10,15 @@ router.get('/', (req, res) => {
   res.send('Hello World');
 });
 
+// Configuración del transporte (esto puede cambiar según el servicio SMTP)
+const transporter = nodemailer.createTransport({
+  service: 'gmail', // o cualquier otro servicio
+  auth: {
+    user: process.env.EMAIL_USER, // tu correo
+    pass: process.env.EMAIL_CODE // tu contraseña
+  }
+});
+
 // ---------- EVENTOS ----------
 // Get eventos pasados
 router.get('/eventos/historialEventosPasados', async (req, res) => {
@@ -57,13 +66,14 @@ router.post('/eventos/solicitudProduccionMusical', async(req, res) => {
   const { nombre, email, mensaje } = req.body;
 
   // Configuración del transporte (esto puede cambiar según el servicio SMTP)
+  /*
   const transporter = nodemailer.createTransport({
     service: 'gmail', // o cualquier otro servicio
     auth: {
       user: process.env.EMAIL_USER, // tu correo
       pass: process.env.EMAIL_CODE // tu contraseña
     }
-  });
+  });*/
 
   // Detalles del correo
   const mailOptions = {
@@ -115,6 +125,7 @@ router.get('/eventos/historialEventosPasadosMultimedia', async (req, res) => {
 });
 
 // -------- PREGUNTAS FRECUENTES ----------
+// Obtener todas las preguntas guardadas
 router.get('/contacto/preguntasFrecuentes', async (req, res) => {
   try {
     const preguntasFrecuentes = await PreguntaRespuesta.findAll({
@@ -127,6 +138,38 @@ router.get('/contacto/preguntasFrecuentes', async (req, res) => {
     console.error('Error al obtener las preguntas frecuentes: ', error);
     res.status(500).json({ error: 'Error al obtener las preguntas frecuentes' });
   }
+});
+
+// Enviar email con preguntas de interesados.
+router.post('/contacto/enviarPregunta', async (req, res) => {
+  console.log("En el back del envío");
+  const { nombre, email, asunto, pregunta } = req.body;
+
+  if (email != undefined && email != "") {
+    var cuerpo = "Tienes una pregunta de parte de " + nombre + " cuyo correo es " + email + ". \n\n" + "\"" + pregunta + "\"";
+  }
+  else {
+    var cuerpo = "Tienes una pregunta de parte de " + nombre + ". \n\n" + "\"" + pregunta + "\"";
+  }
+  
+  // Detalles del correo
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: process.env.EMAIL_DESTINO,
+    subject: "Chacobacheweb: " + asunto,
+    text: cuerpo
+  };
+
+  // Envío del correo
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log('Error al enviar el correo: ' + error);
+      res.status(500).json({status: 500, message: 'Error al enviar el correo: ' + error});
+    } else {
+      console.log('Correo enviado: ' + info.response);
+      res.status(200).json({status: 200, message: 'Correo enviado'});
+    }
+  });
 });
 
 
