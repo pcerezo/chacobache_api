@@ -1,5 +1,5 @@
 const express = require('express');
-const { Evento, Multimedia, PreguntaRespuesta } = require('../models');
+const { Evento, Multimedia, PreguntaRespuesta, ArticuloBlog } = require('../models');
 const router = express.Router();
 const { Op } = require('sequelize'); // Importa operadores de Sequelize
 const nodemailer = require('nodemailer');
@@ -28,6 +28,9 @@ router.get('/eventos/historialEventosPasados', async (req, res) => {
       where: {
         fecha: {
           [Op.lt]: new Date() // Filtra eventos cuya fecha sea menor que la actual
+        },
+        tipo: {
+          [Op.ne]: 'individual'
         }
       },
       order: [['fecha', 'ASC']] // Ordena los eventos por fecha ascendente (opcional)
@@ -48,6 +51,9 @@ router.get('/eventos/historialEventosFuturos', async (req, res) => {
       where: {
         fecha: {
           [Op.gt]: new Date() // Filtra eventos cuya fecha sea mayor que la actual
+        },
+        tipo: {
+          [Op.ne]: 'individual'
         }
       },
       order: [['fecha', 'ASC']] // Ordena los eventos por fecha ascendente (opcional)
@@ -64,16 +70,6 @@ router.get('/eventos/historialEventosFuturos', async (req, res) => {
 router.post('/eventos/solicitudProduccionMusical', async(req, res) => {
   console.log("En el back del envío");
   const { nombre, email, mensaje } = req.body;
-
-  // Configuración del transporte (esto puede cambiar según el servicio SMTP)
-  /*
-  const transporter = nodemailer.createTransport({
-    service: 'gmail', // o cualquier otro servicio
-    auth: {
-      user: process.env.EMAIL_USER, // tu correo
-      pass: process.env.EMAIL_CODE // tu contraseña
-    }
-  });*/
 
   // Detalles del correo
   const mailOptions = {
@@ -170,6 +166,21 @@ router.post('/contacto/enviarPregunta', async (req, res) => {
       res.status(200).json({status: 200, message: 'Correo enviado'});
     }
   });
+});
+
+// -------- BLOG --------
+router.get('/blog/articulos', async (req, res) => {
+  try {
+    const articulos = await ArticuloBlog.findAll({
+      attributes: ['id', 'titulo', 'contenido', 'autor', 'fecha_publicacion', 'url_imagen', 'tags'],
+      order: [['fecha_publicacion', 'ASC']],
+      logging: console.log
+    });
+    res.json(articulos);
+  } catch(error) {
+    console.error('Error al obtener las preguntas frecuentes: ', error);
+    res.status(500).json({ error: 'Error al obtener las preguntas frecuentes' });
+  }
 });
 
 

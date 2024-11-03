@@ -24,7 +24,7 @@ const addEvento = async () => {
   const descripcion = await askQuestion("Introduce la descripción del evento: ");
   const enlace_pdf = await askQuestion("Introduce el enlace al PDF del evento: ");
   const enlace_entradas = await askQuestion("Introduce el enlace a las entradas del evento: ");
-  const tipo = await askQuestion("Introduce el tipo de evento (concierto/charla): ");
+  const tipo = await askQuestion("Introduce el tipo de evento (concierto/charla/individual): ");
 
   await Evento.create({
     lugar,

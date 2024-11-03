@@ -19,6 +19,9 @@ const ArticuloBlog = sequelize.define('Articulo_Blog', {
     fecha_publicacion: { 
         type: DataTypes.DATE 
     },
+    url_imagen: {
+        type: DataTypes.STRING,
+    },
     tags: { 
         type: DataTypes.STRING 
     }
