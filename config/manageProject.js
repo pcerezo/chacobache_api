@@ -62,14 +62,17 @@ const addArticuloBlog = async () => {
   const autor = await askQuestion("Introduce el nombre del autor: ");
   const fecha_publicacion = await askQuestion("Introduce la fecha de publicación (YYYY-MM-DD): ");
   const tags = await askQuestion("Introduce los tags del artículo (separados por comas): ");
+  const url_imagen = await askQuestion("URL imagen de portada: ");
 
   await ArticuloBlog.create({
     titulo,
     contenido,
     autor,
     fecha_publicacion,
+    url_imagen,
     tags
   });
+  
 
   console.log("Artículo del blog agregado exitosamente.");
   rl.close();
