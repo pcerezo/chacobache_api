@@ -178,11 +178,26 @@ router.get('/blog/articulos', async (req, res) => {
     });
     res.json(articulos);
   } catch(error) {
-    console.error('Error al obtener las preguntas frecuentes: ', error);
-    res.status(500).json({ error: 'Error al obtener las preguntas frecuentes' });
+    console.error('Error al obtener los blogs: ', error);
+    res.status/(500).json({ error: 'Error al obtener los blogs: ' + error});
   }
 });
 
+router.get('/blog/detallesArticulo/:id', async (req, res) => {
+  try {
+    const articulo = await ArticuloBlog.findOne({
+      where: { id: req.params.id },  // Agrega el filtro `where` para encontrar el artículo por id
+      attributes: ['id', 'titulo', 'contenido', 'autor', 'fecha_publicacion', 'url_imagen', 'tags'],
+      order: [['fecha_publicacion', 'ASC']],
+      logging: console.log
+    });
+    console.log("Articulo: " + articulo);
+    res.json(articulo);
+  } catch(error) {
+    console.error('Error al obtener el artículo: ', error);
+    res.status(500).json({ error: 'Error al obtener el artículo: ' + error});
+  }
+});
 
 // Ruta para obtener la lista de proyectos con información resumida
 /*
