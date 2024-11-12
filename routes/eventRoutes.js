@@ -183,6 +183,25 @@ router.get('/blog/articulos', async (req, res) => {
   }
 });
 
+router.get('/blog/articulosPagina/:page', async (req, res) => {
+  try {
+    const page = req.params.page;
+    const limit = 5;
+    const offset = (page - 1) * limit;
+    const articulos = await ArticuloBlog.findAll({
+      attributes: ['id', 'titulo', 'contenido', 'autor', 'fecha_publicacion', 'url_imagen', 'tags'],
+      order: [['fecha_publicacion', 'ASC']],
+      limit: limit,
+      offset: offset,
+      logging: console.log
+    });
+    res.json(articulos);
+  } catch(error) {
+    console.error('Error al obtener los blogs: ', error);
+    res.status/(500).json({ error: 'Error al obtener los blogs: ' + error});
+  }
+});
+
 router.get('/blog/detallesArticulo/:id', async (req, res) => {
   try {
     const articulo = await ArticuloBlog.findOne({
