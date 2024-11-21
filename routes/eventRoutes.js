@@ -58,7 +58,7 @@ router.get('/eventos/historialEventosFuturos', async (req, res) => {
       },
       order: [['fecha', 'ASC']] // Ordena los eventos por fecha ascendente (opcional)
     });
-
+    console.log("Encontrados eventos futuros");
     res.json(eventos);
   } catch (error) {
     console.error('Error al obtener los eventos futuros:', error);
