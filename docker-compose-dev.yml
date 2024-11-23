@@ -21,7 +21,29 @@ services:
       - MYSQL_PASSWORD=password
     volumes:
       - ./sql-scripts:/docker-entrypoint-initdb.d
-      #mysql-data: -> /var/lib/mysql
+  angular-chacobache:
+    build: C:\Users\pcere\OneDrive\Documentos\proyectos\Chacobache
+    ports:
+      - "4200:4200"
+      - "9876:9876"
+    links:
+      - backend
+    depends_on:
+      - backend
+    volumes:
+      - C:\Users\pcere\OneDrive\Documentos\proyectos\Chacobache:/usr/src/app
+    #command: >
+    #  sh -c "npm install && ng serve --host 0.0.0.0 --poll=2000"
+
+      
+      
+      
+  #angular-container:
+  #  image: angular-docker
+  #  ports:
+  #    - "4200:4200"
+  #  volumes:
+  #    - .:/
 
 #volumes:
 # mysql-data:
