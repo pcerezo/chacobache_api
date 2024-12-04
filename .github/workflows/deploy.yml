@@ -1,0 +1,80 @@
+name: CI/CD for Fullstack App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Login to Github Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.CHACO_TOKEN_2 }}
+
+    - name: Set environment variables
+      env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
+          MYSQL_USER: ${{ secrets.MYSQL_USER }}
+          MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+      run: |
+        echo "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" >> .env
+        echo "MYSQL_DATABASE=${MYSQL_DATABASE}" >> .env
+        echo "MYSQL_USER=${MYSQL_USER}" >> .env
+        echo "MYSQL_PASSWORD=${MYSQL_PASSWORD}" >> .env
+
+    - name: Build image and push
+      run: |
+        docker compose -f docker-compose-dev.yml build
+        docker compose -f docker-compose-dev.yml push
+    
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clona el repositorio
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Loguéate en el GitHub Container Registry
+      - name: Login to Github Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.CHACO_TOKEN_2 }}
+
+      # 3. Despliega el contenedor
+      - name: Deploy Docker container
+        run: |
+          docker compose -f docker-compose-dev.yml up -d
+      
+      - name: Move files to root
+        run: |
+          if [[ -d "./docs/browser" ]]; 
+            then mv ./docs/browser/* ./docs/ 
+          fi
+          rm -rf ./docs/browser
+
+      # 4. Crear el archivo .nojekyll
+      - name: Add .nojekyll file
+        run: echo > docs/.nojekyll
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.CHACO_TOKEN_2 }}
+          publish_branch: gh-pages
+          publish_dir: ./
+
+
