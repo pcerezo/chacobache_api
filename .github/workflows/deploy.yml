@@ -73,7 +73,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.CHACO_TOKEN_2 }}
-          publish_branch: main
+          publish_branch: gh-pages
           publish_dir: ./
 
 
