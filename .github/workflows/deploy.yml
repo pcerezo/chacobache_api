@@ -58,17 +58,10 @@ jobs:
       - name: Deploy Docker container
         run: |
           docker compose -f docker-compose-dev.yml up -d
-      
-      - name: Move files to root
-        run: |
-          if [[ -d "./docs/browser" ]]; 
-            then mv ./docs/browser/* ./docs/ 
-          fi
-          rm -rf ./docs/browser
 
       # 4. Crear el archivo .nojekyll
       - name: Add .nojekyll file
-        run: echo > docs/.nojekyll
+        run: echo > .nojekyll
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
