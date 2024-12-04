@@ -64,7 +64,7 @@ jobs:
       - name: Deploy Docker container
         run: |
           docker compose -f docker-compose-dev.yml up -d
-      
+
       # 4. Crear el archivo .nojekyll
       - name: Add .nojekyll file
         run: echo > .nojekyll
