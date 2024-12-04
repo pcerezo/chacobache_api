@@ -22,11 +22,17 @@ jobs:
 
     - name: Set environment variables
       env:
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          EMAIL_CODE: ${{ secrets.EMAIL_CODE }}
+          EMAIL_DESTINO: ${{ secrets.EMAIL_DESTINO }}
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           MYSQL_DATABASE: ${{ secrets.MYSQL_DATABASE }}
           MYSQL_USER: ${{ secrets.MYSQL_USER }}
           MYSQL_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
       run: |
+        echo "EMAIL_USER=${EMAIL_USER}" >> .env
+        echo "EMAIL_CODE=${EMAIL_CODE}" >> .env
+        echo "EMAIL_DESTINO=${EMAIL_DESTINO}" >> .env
         echo "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" >> .env
         echo "MYSQL_DATABASE=${MYSQL_DATABASE}" >> .env
         echo "MYSQL_USER=${MYSQL_USER}" >> .env
@@ -59,22 +65,15 @@ jobs:
         run: |
           docker compose -f docker-compose-dev.yml up -d
       
-      - name: Move files to root
-        run: |
-          if [[ -d "./docs/browser" ]]; 
-            then mv ./docs/browser/* ./docs/ 
-          fi
-          rm -rf ./docs/browser
-
       # 4. Crear el archivo .nojekyll
       - name: Add .nojekyll file
-        run: echo > docs/.nojekyll
+        run: echo > .nojekyll
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.CHACO_TOKEN_2 }}
-          publish_branch: gh-pages
+          publish_branch: main
           publish_dir: ./
 
 
