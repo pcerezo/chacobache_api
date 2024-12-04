@@ -1,0 +1,23 @@
+
+services:
+  backend:
+    build: .
+    ports: 
+      - "5000:5000"
+    links:
+      - sqlnet
+  sqlnet:
+    image: mysql
+    ports: 
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=chacobache_dev
+      - MYSQL_USER=pablo
+      - MYSQL_PASSWORD=password
+    volumes:
+      - ./sql-scripts:/docker-entrypoint-initdb.d
+      #mysql-data: -> /var/lib/mysql
+
+#volumes:
+# mysql-data:
