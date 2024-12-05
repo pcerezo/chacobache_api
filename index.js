@@ -4,7 +4,9 @@ const { sequelize } = require('./models');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: 'https://pcerezo.github.io', // Tu frontend en GitHub Pages
+}));
 app.use(express.json());
 
 // Rutas de eventos
@@ -27,3 +29,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
+
+module.exports = app;
