@@ -42,6 +42,8 @@ jobs:
       run: |
         docker compose -f docker-compose-dev.yml build
         docker compose -f docker-compose-dev.yml push
+      env:
+        GITHUB_REPOSITORY: ${{ github.repository }}
     
   deploy:
     needs: test
