@@ -8,7 +8,6 @@ services:
     ports: 
       - "5000:5000"
     environment:
-      - DB_HOST=sqlnet
       - DB_USER=${MYSQL_USER}
       - DB_PASSWORD=${MYSQL_PASSWORD}
       - DB_DATABASE=${MYSQL_DATABASE}
