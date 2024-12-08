@@ -21,3 +21,4 @@ services:
     #  - sqlnet
     volumes:
       - .:/home/app
+      - .env.production:/usr/src/app/.env.production
