@@ -34,13 +34,13 @@ jobs:
           DB_PASS: ${{ secrets.DB_PASS }}
           DB_NAME: ${{ secrets.DB_NAME }}
       run: |
-        echo "EMAIL_USER=${EMAIL_USER}" >> .env
-        echo "EMAIL_CODE=${EMAIL_CODE}" >> .env
-        echo "EMAIL_DESTINO=${EMAIL_DESTINO}" >> .env
-        echo "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" >> .env
-        echo "MYSQL_DATABASE=${MYSQL_DATABASE}" >> .env
-        echo "MYSQL_USER=${MYSQL_USER}" >> .env
-        echo "MYSQL_PASSWORD=${MYSQL_PASSWORD}" >> .env
+        echo "EMAIL_USER=${EMAIL_USER}" >> .env.production
+        echo "EMAIL_CODE=${EMAIL_CODE}" >> .env.production
+        echo "EMAIL_DESTINO=${EMAIL_DESTINO}" >> .env.production
+        echo "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" >> .env.production
+        echo "MYSQL_DATABASE=${MYSQL_DATABASE}" >> .env.production
+        echo "MYSQL_USER=${MYSQL_USER}" >> .env.production
+        echo "MYSQL_PASSWORD=${MYSQL_PASSWORD}" >> .env.production
         echo "DB_HOST=${DB_HOST}"
         echo "DB_USER=${DB_USER}"
         echo "DB_PASS=${DB_PASS}"
@@ -48,10 +48,13 @@ jobs:
 
     - name: Build image and push
       run: |
-        docker compose -f docker-compose-dev.yml build
-        docker compose -f docker-compose-dev.yml push
+        docker compose build
+        docker compose push
       env:
         GITHUB_REPOSITORY: ${{ github.repository }}
+    
+    - name: Run tests
+      run: npm test
     
   deploy:
     needs: test
@@ -73,7 +76,7 @@ jobs:
       # 3. Despliega el contenedor
       - name: Deploy Docker container
         run: |
-          docker compose -f docker-compose-dev.yml up -d
+          docker compose up -d
 
       # 4. Crear el archivo .nojekyll
       - name: Add .nojekyll file

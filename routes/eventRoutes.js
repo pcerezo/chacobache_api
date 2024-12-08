@@ -6,8 +6,8 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 // Define tus rutas aquí
-router.get('/', (req, res) => {
-  res.send('Hello World');
+router.get('/test/saludo', (req, res) => {
+  res.json({ message:'Hello World'});
 });
 
 // Configuración del transporte (esto puede cambiar según el servicio SMTP)
