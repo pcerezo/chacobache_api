@@ -48,7 +48,7 @@ jobs:
 
     - name: Build image and push
       run: |
-        docker compose build
+        docker compose --env-file .env.production build
         docker compose push
       env:
         GITHUB_REPOSITORY: ${{ github.repository }}
@@ -76,7 +76,7 @@ jobs:
       # 3. Despliega el contenedor
       - name: Deploy Docker container
         run: |
-          docker compose up -d
+          docker compose --env-file .env.production up -d
 
       # 4. Crear el archivo .nojekyll
       - name: Add .nojekyll file
