@@ -46,6 +46,11 @@ jobs:
         echo "DB_PASS=${DB_PASS}" >> .env.production
         echo "DB_NAME=${DB_NAME}" >> .env.production
 
+    - name: Load .env.production variables 
+      uses: avanvarghese1/dotenv-action@v3 
+      with: 
+        file: .env.production
+
     - name: Build image and push
       run: |
         docker compose build
