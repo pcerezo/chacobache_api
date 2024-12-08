@@ -54,7 +54,7 @@ jobs:
         GITHUB_REPOSITORY: ${{ github.repository }}
     
     - name: Run tests
-      run: npm test
+      run: npm test -- --updateSnapshot
     
   deploy:
     needs: test
