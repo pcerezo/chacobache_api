@@ -2,9 +2,9 @@ FROM node:latest
 
 RUN mkdir -p /home/app
 
-RUN npm install
-
 WORKDIR /home/app
+
+RUN npm install
 
 EXPOSE 5000
 
