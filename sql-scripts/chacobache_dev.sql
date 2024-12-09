@@ -18,6 +18,8 @@
 --
 -- Table structure for table `Articulo_Blogs`
 --
+CREATE DATABASE IF NOT EXISTS chacobache_dev;
+
 USE `chacobache_dev`;
 
 SET FOREIGN_KEY_CHECKS = 0;

@@ -6,8 +6,8 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 // Define tus rutas aquí
-router.get('/', (req, res) => {
-  res.send('Hello World');
+router.get('/test/saludo', (req, res) => {
+  res.json({ message:'Hello World'});
 });
 
 // Configuración del transporte (esto puede cambiar según el servicio SMTP)
@@ -179,7 +179,7 @@ router.get('/blog/articulos', async (req, res) => {
     res.json(articulos);
   } catch(error) {
     console.error('Error al obtener los blogs: ', error);
-    res.status/(500).json({ error: 'Error al obtener los blogs: ' + error});
+    res.status(500).json({ error: 'Error al obtener los blogs: ' + error});
   }
 });
 
