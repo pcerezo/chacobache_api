@@ -1,7 +1,7 @@
 const express = require('express');
 const { Evento, Multimedia, PreguntaRespuesta, ArticuloBlog } = require('../models');
 const router = express.Router();
-const { Op } = require('sequelize'); // Importa operadores de Sequelize
+const { Op, where } = require('sequelize'); // Importa operadores de Sequelize
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
@@ -138,7 +138,6 @@ router.get('/contacto/preguntasFrecuentes', async (req, res) => {
 
 // Enviar email con preguntas de interesados.
 router.post('/contacto/enviarPregunta', async (req, res) => {
-  console.log("En el back del envío");
   const { nombre, email, asunto, pregunta } = req.body;
 
   if (email != undefined && email != "") {
@@ -171,11 +170,8 @@ router.post('/contacto/enviarPregunta', async (req, res) => {
 // -------- BLOG --------
 router.get('/blog/articulos', async (req, res) => {
   try {
-    const articulos = await ArticuloBlog.findAll({
-      attributes: ['id', 'titulo', 'contenido', 'autor', 'fecha_publicacion', 'url_imagen', 'tags'],
-      order: [['fecha_publicacion', 'ASC']],
-      logging: console.log
-    });
+    const articulos = await ArticuloBlog.count();
+    console.log("Count de artículos: " + articulos);
     res.json(articulos);
   } catch(error) {
     console.error('Error al obtener los blogs: ', error);
@@ -186,19 +182,37 @@ router.get('/blog/articulos', async (req, res) => {
 router.get('/blog/articulosPagina/:page', async (req, res) => {
   try {
     const page = req.params.page;
-    const limit = 5;
+    const limit = 2;
     const offset = (page - 1) * limit;
+    const { filtro } = req.query
+    const whereCondition = filtro
+      ? {
+          [Op.or]: [
+            { titulo: { [Op.like]: `%${filtro}%` } },
+            { contenido: { [Op.like]: `%${filtro}%` } },
+            { autor: { [Op.like]: `%${filtro}%` } },
+            { tags: { [Op.like]: `%${filtro}%` } }
+          ]
+        }
+      : {}; // Si no hay filtro, no aplica condiciones
+
     const articulos = await ArticuloBlog.findAll({
       attributes: ['id', 'titulo', 'contenido', 'autor', 'fecha_publicacion', 'url_imagen', 'tags'],
+      where: whereCondition,
       order: [['fecha_publicacion', 'ASC']],
       limit: limit,
       offset: offset,
       logging: console.log
     });
-    res.json(articulos);
+
+    const totalArticulos = await ArticuloBlog.count({
+      where: whereCondition,
+      logging: console.log
+    });
+    res.json({articulos: articulos, total: totalArticulos});
   } catch(error) {
     console.error('Error al obtener los blogs: ', error);
-    res.status/(500).json({ error: 'Error al obtener los blogs: ' + error});
+    res.status(500).json({ error: 'Error al obtener los blogs: ' + error});
   }
 });
 
