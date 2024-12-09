@@ -2,12 +2,7 @@
 const { Sequelize } = require('sequelize');
 const dotenv = require('dotenv');
 const path = require('path');
-
-const rootDir = path.dirname(require.main.filename);
-
-dotenv.config({
-  path: path.resolve(rootDir, `.env.${process.env.NODE_ENV}`)
-});
+dotenv.config();
 
 // Crea una instancia de Sequelize
 console.log("NODE_ENV: " + process.env.NODE_ENV + ", DB_USER: " + process.env.DB_USER);

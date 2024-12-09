@@ -179,7 +179,7 @@ router.get('/blog/articulos', async (req, res) => {
     res.json(articulos);
   } catch(error) {
     console.error('Error al obtener los blogs: ', error);
-    res.status/(500).json({ error: 'Error al obtener los blogs: ' + error});
+    res.status(500).json({ error: 'Error al obtener los blogs: ' + error});
   }
 });
 
