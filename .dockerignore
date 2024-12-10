@@ -1,5 +1,5 @@
 # Ignorar node_modules
-node_modules
+node_modules/*
 # Ignorar control de versiones
 .git
 # Ignorar logs

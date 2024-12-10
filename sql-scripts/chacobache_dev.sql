@@ -24,6 +24,20 @@ USE `chacobache_dev`;
 
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS `Users`;
+
+CREATE TABLE Users (
+    `id` INT NOT NULL AUTO_INCREMENT,
+    `username` VARCHAR(255) NOT NULL UNIQUE,
+    `password` VARCHAR(255) NOT NULL,
+    `createdAt` DATETIME NOT NULL,
+    `updatedAt` DATETIME NOT NULL,
+    PRIMARY KEY (id)
+);
+
+INSERT INTO Users 
+VALUES (1, 'chacobachito', '$2a$10$CrI4NdSPbgrZjeId34GIqOPFslYuOpDvzIlIsVeCM/C/geYr0CfGu', NOW(), NOW());
+
 
 DROP TABLE IF EXISTS `Articulo_Blogs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
