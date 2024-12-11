@@ -11,7 +11,7 @@ dotenv.config();
 
 const app = express();
 app.use(cors({
-  origin: '*', // Tu frontend en GitHub Pages
+  origin: 'https://pcerezo.github.io', // Tu frontend en GitHub Pages
 }));
 app.use(express.json());
 
