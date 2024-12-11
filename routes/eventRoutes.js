@@ -9,7 +9,7 @@ const { validationResult } = require('express-validator');
 require('dotenv').config();
 
 
-const JWT_SECRET = 'supersecretkey';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Define tus rutas aquí
 router.get('/test/saludo', (req, res) => {
@@ -242,15 +242,23 @@ router.post('/login', async (req, res) => {
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
+    console.error("Errores en la validación");
     return res.status(400).json({errors: errors.array() });
   }
 
   const { username, password } = req.body;
 
   try {
-    const user = await User.findOne({ where: { username }});
+    const user = await User.findOne({
+      where: {
+      username: {
+        [Op.eq]: username // Filtra eventos cuya fecha sea menor que la actual
+      }
+      }
+    });
 
     if (!user) {
+      console.error('No hay usuario');
       return res.status(401).json({error: 'Credenciales inválidas'});
     }
 
@@ -258,6 +266,7 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
+      console.error('No coinciden las contraseñas');
       return res.status(401).json({ error: 'Credenciales inválidas' });
     }
 
@@ -266,7 +275,8 @@ router.post('/login', async (req, res) => {
       expiresIn: '1h'
     });
 
-    res.json({ token });
+    console.log("Enviando token: " + token);
+    res.status(200).json({ token });
   }
   catch(error) {
     console.error('Error al autenticar:', error);
