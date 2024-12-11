@@ -3,6 +3,8 @@ const cors = require('cors');
 const { sequelize } = require('./models');
 const dotenv = require('dotenv');
 const path = require('path');
+const eventRoutes = require('./routes/eventRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 dotenv.config();
 
@@ -14,8 +16,8 @@ app.use(cors({
 app.use(express.json());
 
 // Rutas de eventos
-const eventRoutes = require('./routes/eventRoutes');
 app.use('/api/', eventRoutes);
+app.use('/admin/', adminRoutes);
 
 // TODO: Servir los PDFs subidos desde el directorio "uploads"
 app.use('/uploads', express.static('uploads'));

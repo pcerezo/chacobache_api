@@ -3,3 +3,5 @@
 .env*
 
 node_modules/*
+
+sql-scripts/chacobache_dev.sql

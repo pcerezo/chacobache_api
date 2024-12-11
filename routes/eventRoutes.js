@@ -1,9 +1,15 @@
 const express = require('express');
-const { Evento, Multimedia, PreguntaRespuesta, ArticuloBlog } = require('../models');
+const { Evento, Multimedia, PreguntaRespuesta, ArticuloBlog, User } = require('../models');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 const { Op, where } = require('sequelize'); // Importa operadores de Sequelize
 const nodemailer = require('nodemailer');
+const { validationResult } = require('express-validator');
 require('dotenv').config();
+
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Define tus rutas aquí
 router.get('/test/saludo', (req, res) => {
@@ -97,9 +103,9 @@ router.post('/eventos/solicitudProduccionMusical', async(req, res) => {
 router.get('/eventos/historialEventosPasadosMultimedia', async (req, res) => {
   try {
     const eventos = await Evento.findAll({
-      attributes: ['id', 'lugar', 'fecha', 'descripcion'],
+      attributes: ['id', 'lugar', 'createdAt', 'descripcion'],
       where: {
-        fecha: {
+        createdAt: {
           [Op.lt]: new Date() // Filtra eventos cuya fecha sea menor que la actual
         }
       },
@@ -109,7 +115,7 @@ router.get('/eventos/historialEventosPasadosMultimedia', async (req, res) => {
           required: true
         }
       ],
-      order: [['fecha', 'ASC']],
+      order: [['createdAt', 'ASC']],
       logging: console.log
     });
 
@@ -232,71 +238,50 @@ router.get('/blog/detallesArticulo/:id', async (req, res) => {
   }
 });
 
-// Ruta para obtener la lista de proyectos con información resumida
-/*
-app.get('/api/projects', async (req, res) => {
-  try {
-    const projects = await Project.findAll({
-      attributes: ['id', 'title', 'short_description', 'start_date', 'end_date', 'client', 'role'],
-      include: [
-        {
-          model: Technology,
-          as: 'Technologies',
-          attributes: ['name']
-        },
-        {
-          model: Category,
-          as: 'Categories',
-          attributes: ['name']
-        },
-        {
-          model: ProjectImage,
-          as: 'images',
-          attributes: ['image_url', 'alt_text', 'order']
-        }
-      ]
-    });
+router.post('/login', async (req, res) => {
+  const errors = validationResult(req);
 
-    res.json(projects);
-  } catch (error) {
-    console.error('Error al obtener los proyectos:', error);
-    res.status(500).json({ error: 'Error al obtener los proyectos' });
+  if (!errors.isEmpty()) {
+    console.error("Errores en la validación");
+    return res.status(400).json({errors: errors.array() });
   }
-});
 
-// Ruta para obtener los detalles de un proyecto específico
-app.get('/api/projects/:id', async (req, res) => {
+  const { username, password } = req.body;
+
   try {
-    const project = await Project.findByPk(req.params.id, {
-      include: [
-        {
-          model: Technology,
-          as: 'Technologies',
-          attributes: ['name']
-        },
-        {
-          model: Category,
-          as: 'Categories',
-          attributes: ['name']
-        },
-        {
-          model: ProjectImage,
-          as: 'images',
-          attributes: ['image_url', 'alt_text', 'order']
-        }
-      ]
+    const user = await User.findOne({
+      where: {
+      username: {
+        [Op.eq]: username // Filtra eventos cuya fecha sea menor que la actual
+      }
+      }
     });
 
-    if (!project) {
-      return res.status(404).json({ error: 'Proyecto no encontrado' });
+    if (!user) {
+      console.error('No hay usuario');
+      return res.status(401).json({error: 'Credenciales inválidas'});
     }
 
-    res.json(project);
-  } catch (error) {
-    console.error('Error al obtener el proyecto:', error);
-    res.status(500).json({ error: 'Error al obtener el proyecto' });
+    // Comparar la contraseña proporcionada con la almacenada
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      console.error('No coinciden las contraseñas');
+      return res.status(401).json({ error: 'Credenciales inválidas' });
+    }
+
+    // Generar token JWT
+    const token = jwt.sign({ id: user.id, username: user.username}, JWT_SECRET, {
+      expiresIn: '1h'
+    });
+
+    console.log("Enviando token: " + token);
+    res.status(200).json({ token });
+  }
+  catch(error) {
+    console.error('Error al autenticar:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
-*/
 
 module.exports = router;
