@@ -72,6 +72,142 @@ router.get('/eventos/historialEventosFuturos', async (req, res) => {
   }
 });
 
+// Get eventos futuros
+router.get('/eventos/historialEventos', async (req, res) => {
+  try {
+    const eventos = await Evento.findAll({
+      attributes: ['id', 'lugar', 'fecha', 'descripcion', 'enlace_entradas'],
+      where: {
+        tipo: {
+          [Op.ne]: 'individual'
+        }
+      },
+      order: [['fecha', 'ASC']] // Ordena los eventos por fecha ascendente (opcional)
+    });
+    console.log("Encontrados todos los eventos");
+    res.json(eventos);
+  } catch (error) {
+    console.error('Error al obtener todos los eventos:', error);
+    res.status(500).json({ error: 'Error al obtener todos los eventos' });
+  }
+});
+
+// Get info evento particular
+router.get('/eventos/detallesEvento/:id', async(req, res) => {
+  const idEvento = req.params.id;
+
+  try {
+    const evento = await Evento.findOne({
+      attributes: ['id', 'lugar', 'fecha', 'descripcion', 'enlace_pdf', 'enlace_entradas', 'tipo'],
+      where: {
+        id: {
+          [Op.eq]: idEvento
+        }
+      }
+    });
+
+    res.json(evento);
+  }
+  catch(error) {
+    console.log("Error en la obtención de detalles del evento: " + error);
+    res.status(500).json({error: 'Error en la obtención de detalles del evento: ' + error});
+  }
+});
+
+router.post('/eventos/crearEvento', async(req, res) => {
+  const {lugar, fecha, descripcion, enlace_pdf, enlace_entradas, tipo} = req.body;
+
+  try {
+    var nuevoEvento = await Evento.create({
+      lugar,
+      fecha,
+      descripcion,
+      enlace_pdf,
+      enlace_entradas,
+      tipo
+    });
+
+    if (!nuevoEvento) {
+      return res.status(400).json({ message: 'No se pudo crear el evento' });
+    }
+
+    res.status(201).json({
+      message: 'Evento creado con éxito',
+      evento: nuevoEvento
+    });
+  }
+  catch(error){
+    console.error('Error al crear el evento:', error);
+    res.status(500).json({
+        message: 'Error al crear el evento',
+        error: error.message
+    });
+  }
+});
+
+router.put('/eventos/actualizarEvento/:id', async(req, res) => {
+  const idEvento = req.params.id;
+  const {lugar, fecha, descripcion, enlace_pdf, enlace_entradas, tipo} = req.body;
+
+  try {
+    var evento = await Evento.findByPk(idEvento);
+
+    const eventoActualizado = await evento.update(
+      {
+        lugar,
+        fecha,
+        descripcion,
+        enlace_pdf,
+        enlace_entradas,
+        tipo
+      }
+    );
+
+    if (!eventoActualizado) {
+      return res.status(404).json({ message: 'Evento no encontrado' });
+    }
+
+    res.status(200).json({
+        message: 'Evento actualizado con éxito',
+        evento: eventoActualizado
+    });
+  }
+  catch(error){
+    console.error('Error al actualizar el evento:', error);
+    res.status(500).json({
+        message: 'Error al actualizar el evento',
+        error: error.message
+    });
+  }
+});
+
+router.delete('/eventos/eliminarEvento/:id', async(req, res) => {
+  const idEvento = req.params.id;
+  console.log("API: en eliminarEvento");
+  try {
+    var filasAfectadas = await Evento.destroy({
+      where: {
+        id: {
+          [Op.eq]: idEvento
+        }
+      }
+    });
+
+    
+    if (filasAfectadas > 0) {
+      console.log("Borrado con éxito. Filas afectadas: " + filasAfectadas);
+    }
+    else {
+      console.log("No habían objetos para borrar");
+    }
+
+    return res.status(200).json({message: "Borrado con éxito. Filas afectadas: " + filasAfectadas});
+  } catch(error) {
+    console.error("Error al borrar el evento");
+    return res.status(500).json({message: "No habían objetos para borrar"});
+  }
+});
+
 // Enviar correo de solicitud de producción musical
 router.post('/eventos/solicitudProduccionMusical', async(req, res) => {
   console.log("En el back del envío");
@@ -188,7 +324,7 @@ router.get('/blog/articulos', async (req, res) => {
 router.get('/blog/articulosPagina/:page', async (req, res) => {
   try {
     const page = req.params.page;
-    const limit = 2;
+    const limit = 5;
     const offset = (page - 1) * limit;
     const { filtro } = req.query
     const whereCondition = filtro
@@ -235,6 +371,76 @@ router.get('/blog/detallesArticulo/:id', async (req, res) => {
   } catch(error) {
     console.error('Error al obtener el artículo: ', error);
     res.status(500).json({ error: 'Error al obtener el artículo: ' + error});
+  }
+});
+
+router.post('/blog/articulos/create', async (req, res) => {
+  const { titulo, contenido, autor, fecha_publicacion, url_imagen, tags } = req.body;
+
+  try {
+    const nuevoArticulo = await ArticuloBlog.create({
+      titulo,
+      contenido,
+      autor,
+      fecha_publicacion,
+      url_imagen,
+      tags
+    });
+
+    res.status(201).json(nuevoArticulo);
+  } catch (error) {
+    console.error('Error al crear el artículo de blog: ', error);
+    res.status(500).json({ error: 'Error al crear el artículo de blog' });
+  }
+});
+
+router.put('/blog/articulos/actualizarArticulo/:id', async (req, res) => {
+  const idArticulo = req.params.id;
+  const { titulo, contenido, autor, fecha_publicacion, url_imagen, tags } = req.body;
+
+  try {
+    const articulo = await ArticuloBlog.findByPk(idArticulo);
+
+    if (!articulo) {
+      return res.status(404).json({ message: 'Artículo no encontrado' });
+    }
+
+    articulo.titulo = titulo;
+    articulo.contenido = contenido;
+    articulo.autor = autor;
+    articulo.fecha_publicacion = fecha_publicacion;
+    articulo.url_imagen = url_imagen;
+    articulo.tags = tags;
+
+    await articulo.save();
+
+    res.status(200).json({ message: 'Artículo actualizado con éxito', articulo });
+  } catch (error) {
+    console.error('Error al actualizar el artículo de blog: ', error);
+    res.status(500).json({ message: 'Error al actualizar el artículo de blog', error: error.message });
+  }
+});
+
+router.delete('/blog/articulos/eliminarArticulo/:id', async (req, res) => {
+  const idArticulo = req.params.id;
+  console.log("API: en eliminarArticulo");
+  try {
+    const filasAfectadas = await ArticuloBlog.destroy({
+      where: {
+        id: idArticulo
+      }
+    });
+
+    if (filasAfectadas > 0) {
+      console.log("Borrado con éxito. Filas afectadas: " + filasAfectadas);
+      return res.status(200).json({ message: "Borrado con éxito. Filas afectadas: " + filasAfectadas });
+    } else {
+      console.log("No habían objetos para borrar");
+      return res.status(404).json({ message: "No se encontró el artículo para borrar" });
+    }
+  } catch (error) {
+    console.error('Error al eliminar el artículo de blog:', error);
+    return res.status(500).json({ message: 'Error al eliminar el artículo de blog', error: error.message });
   }
 });
 

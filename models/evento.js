@@ -27,7 +27,7 @@ const Evento = sequelize.define('Evento', {
     type: DataTypes.STRING
   },
   tipo: {
-    type: DataTypes.ENUM('concierto', 'charla', 'individual'),
+    type: DataTypes.STRING('concierto', 'charla', 'individual'),
     allowNull: false
   },
   createdAt: {
