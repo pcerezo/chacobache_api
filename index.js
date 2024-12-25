@@ -15,12 +15,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-app.use(express.static('public', {
-  setHeaders: (res, path) => {
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-  }
-}));
-
 // Rutas de eventos
 app.use('/api/', eventRoutes);
 app.use('/admin/', adminRoutes);
