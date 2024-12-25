@@ -14,7 +14,7 @@ const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, proces
   dialectOptions: {
     charset: 'utf8mb4',
   },
-  logging: false,            // Desactiva el logging de las consultas SQL en consola
+  logging: true,            // Desactiva el logging de las consultas SQL en consola
 });
 
 module.exports = sequelize;
