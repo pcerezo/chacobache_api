@@ -80,7 +80,7 @@ CREATE TABLE `Eventos` (
   `descripcion` text NOT NULL,
   `enlace_pdf` varchar(255) DEFAULT NULL,
   `enlace_entradas` varchar(255) DEFAULT NULL,
-  `tipo` enum('concierto','charla') NOT NULL,
+  `tipo` varchar(255) NOT NULL,
   `createdAt` datetime NOT NULL,
   `updatedAt` datetime NOT NULL,
   PRIMARY KEY (`id`)
