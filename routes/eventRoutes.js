@@ -105,7 +105,7 @@ router.get('/eventos/detallesEvento/:id', async(req, res) => {
         }
       }
     });
-
+    console.log("Encontrado el evento: " + evento.toJSON());
     res.json(evento);
   }
   catch(error) {
@@ -259,6 +259,36 @@ router.get('/eventos/historialEventosPasadosMultimedia', async (req, res) => {
   } catch(error) {
     console.error('Error al obtener los eventos:', error);
     res.status(500).json({ error: 'Error al obtener los eventos' });
+  }
+});
+
+router.get('/multimedia/getMultimediaById/:id', async (req, res) => {
+  try {
+    const multimedia = await Multimedia.findByPk(req.params.id);
+    res.json(multimedia);
+  } catch(error) {
+    console.error('Error al obtener el multimedia:', error);
+    res.status(500).json({ error: 'Error al obtener el multimedia' });
+  }
+});
+
+router.get('/multimedia/getMultimediaByEvento/:id', async (req, res) => {
+  try {
+    const multimedia = await Multimedia.findAll({
+      attributes: ['id', 'id_evento', 'enlace_contenido', 'descripcion'],
+      where: {
+        id_evento: {
+          [Op.eq]: req.params.id
+        }
+      },
+      order: [['id', 'ASC']],
+      logging: console.log
+    });
+
+    res.json(multimedia);
+  } catch(error) {
+    console.error('Error al obtener el multimedia:', error);
+    res.status(500).json({ error: 'Error al obtener el multimedia' });
   }
 });
 
