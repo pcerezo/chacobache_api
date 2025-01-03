@@ -262,6 +262,68 @@ router.get('/eventos/historialEventosPasadosMultimedia', async (req, res) => {
   }
 });
 
+router.post('/multimedia/crearMultimedia', async (req, res) => {
+  const { id_evento, enlace_contenido, descripcion } = req.body;
+
+  try {
+    const nuevoMultimedia = await Multimedia.create({
+      id_evento,
+      enlace_contenido,
+      descripcion
+    });
+
+    res.status(201).json(nuevoMultimedia);
+  } catch (error) {
+    console.error('Error al crear el contenido multimedia: ', error);
+    res.status(500).json({ error: 'Error al crear el contenido multimedia' });
+  }
+});
+
+router.put('/multimedia/editarMultimedia/:id', async (req, res) => {
+  const idMultimedia = req.params.id;
+  const { id_evento, enlace_contenido, descripcion } = req.body;
+
+  try {
+    const multimedia = await Multimedia.findByPk(idMultimedia);
+
+    if (!multimedia) {
+      return res.status(404).json({ message: 'Multimedia no encontrado' });
+    }
+
+    multimedia.id_evento = id_evento;
+    multimedia.enlace_contenido = enlace_contenido;
+    multimedia.descripcion = descripcion;
+
+    await multimedia.save();
+
+    res.status(200).json({ message: 'Multimedia actualizado con éxito', multimedia });
+  } catch (error) {
+    console.error('Error al actualizar el contenido multimedia: ', error);
+    res.status(500).json({ message: 'Error al actualizar el contenido multimedia', error: error.message });
+  }
+});
+
+router.delete('/multimedia/eliminarMultimedia/:id', async (req, res) => {
+  const idMultimedia = req.params.id;
+
+  try {
+    const filasAfectadas = await Multimedia.destroy({
+      where: {
+        id: idMultimedia
+      }
+    });
+
+    if (filasAfectadas > 0) {
+      return res.status(200).json({ message: 'Multimedia eliminado con éxito' });
+    } else {
+      return res.status(404).json({ message: 'Multimedia no encontrado' });
+    }
+  } catch (error) {
+    console.error('Error al eliminar el contenido multimedia:', error);
+    res.status(500).json({ message: 'Error al eliminar el contenido multimedia', error: error.message });
+  }
+});
+
 router.get('/multimedia/getMultimediaById/:id', async (req, res) => {
   try {
     const multimedia = await Multimedia.findByPk(req.params.id);
