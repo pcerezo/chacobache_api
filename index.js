@@ -23,7 +23,7 @@ app.use('/admin/', adminRoutes);
 app.use('/uploads', express.static('uploads'));
 
 // Sincronizar modelos con la base de datos
-sequelize.sync({ force: true })  // Usar `force: true` para borrar y recrear tablas cada vez
+sequelize.sync({ force: false })  // Usar `force: true` para borrar y recrear tablas cada vez
   .then(() => {
     console.log("Conexión con la base de datos y sincronización exitosa.");
   })
