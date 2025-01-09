@@ -536,6 +536,84 @@ router.delete('/blog/articulos/eliminarArticulo/:id', async (req, res) => {
   }
 });
 
+// Obtener todas las preguntas y respuestas
+router.get('/preguntaRespuesta/getAll', async (req, res) => {
+  try {
+    const preguntasRespuestas = await PreguntaRespuesta.findAll();
+    res.status(200).json(preguntasRespuestas);
+  } catch (error) {
+    console.error('Error al obtener las preguntas y respuestas: ', error);
+    res.status(500).json({ error: 'Error al obtener las preguntas y respuestas' });
+  }
+});
+
+// Crear una nueva pregunta y respuesta
+router.post('/preguntaRespuesta/crear', async (req, res) => {
+  const { asunto, texto_pregunta, texto_respuesta, fecha_publicacion } = req.body;
+
+  try {
+    const nuevaPreguntaRespuesta = await PreguntaRespuesta.create({
+      asunto,
+      texto_pregunta,
+      texto_respuesta,
+      fecha_publicacion
+    });
+
+    res.status(201).json(nuevaPreguntaRespuesta);
+  } catch (error) {
+    console.error('Error al crear la pregunta y respuesta: ', error);
+    res.status(500).json({ error: 'Error al crear la pregunta y respuesta' });
+  }
+});
+
+router.put('/preguntaRespuesta/actualizar/:id', async (req, res) => {
+  const idPreguntaRespuesta = req.params.id;
+  const { asunto, texto_pregunta, texto_respuesta, fecha_publicacion } = req.body;
+
+  try {
+    const preguntaRespuesta = await PreguntaRespuesta.findByPk(idPreguntaRespuesta);
+
+    if (!preguntaRespuesta) {
+      return res.status(404).json({ message: 'Pregunta y respuesta no encontrada' });
+    }
+
+    preguntaRespuesta.asunto = asunto;
+    preguntaRespuesta.texto_pregunta = texto_pregunta;
+    preguntaRespuesta.texto_respuesta = texto_respuesta;
+    preguntaRespuesta.fecha_publicacion = fecha_publicacion;
+
+    await preguntaRespuesta.save();
+
+    res.status(200).json({ message: 'Pregunta y respuesta actualizada con éxito', preguntaRespuesta });
+  } catch (error) {
+    console.error('Error al actualizar la pregunta y respuesta: ', error);
+    res.status(500).json({ message: 'Error al actualizar la pregunta y respuesta', error: error.message });
+  }
+});
+
+router.delete('/preguntaRespuesta/eliminar/:id', async (req, res) => {
+  const idPreguntaRespuesta = req.params.id;
+  console.log("API: en eliminarPreguntaRespuesta");
+  try {
+    const filasAfectadas = await PreguntaRespuesta.destroy({
+      where: {
+        id: idPreguntaRespuesta
+      }
+    });
+
+    if (filasAfectadas > 0) {
+      console.log("Borrado con éxito. Filas afectadas: " + filasAfectadas);
+      return res.status(200).json({ message: "Borrado con éxito. Filas afectadas: " + filasAfectadas });
+    } else {
+      console.log("No había pregunta y respuesta para borrar");
+      return res.status(404).json({ message: "No se encontró la pregunta y respuesta para borrar" });
+    }
+  } catch (error) {
+    console.error('Error al eliminar la pregunta y respuesta:', error);
+    return res.status(500).json({ message: 'Error al eliminar la pregunta y respuesta', error: error.message });
+  }
+});
+
 router.post('/login', async (req, res) => {
   const errors = validationResult(req);
 
@@ -573,7 +651,7 @@ router.post('/login', async (req, res) => {
       expiresIn: '1h'
     });
 
-    console.log("Enviando token: " + token);
+    //console.log("Enviando token: " + token);
     res.status(200).json({ token });
   }
   catch(error) {
